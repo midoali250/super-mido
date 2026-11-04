@@ -1,0 +1,81 @@
+# ---------------------------------------------------------------------------
+# Cartridge images and extracted game data must NEVER be committed.
+# See docs/LEGAL.md -- this block is the mechanical enforcement of that policy.
+# ---------------------------------------------------------------------------
+*.nes
+*.fc
+*.fds
+*.unf
+*.unif
+*.nez
+*.nsf
+*.sfc
+*.smc
+*.fig
+*.n64
+*.z64
+*.v64
+*.gb
+*.gbc
+*.gba
+*.nds
+*.bin
+*.rom
+*.chd
+*.cue
+*.iso
+*.img
+*.pbp
+# Disassembly / decompilation output for anything we did not write ourselves
+out/
+disasm_out/
+listing/
+*.asm.out
+*.dis
+# Extracted graphics, audio and asset dumps
+*.chr.bin
+*.chr.pgm
+*.chr.png
+tiles/
+assets_dump/
+# Prebuilt binaries
+*.apk
+*.aab
+*.exe
+*.AppImage
+*.dmg
+*.zip
+*.7z
+*.tar.gz
+*.jar
+*.so
+*.dll
+*.dylib
+*.o
+*.a
+
+# ---------------------------------------------------------------------------
+# Ordinary Python / editor noise
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+*.local
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
