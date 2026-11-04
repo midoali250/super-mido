@@ -61,3 +61,14 @@ no interest in hosting anyone else's work.
 The tool itself is MIT licensed; see `LICENSE`. The iNES header layout and the
 6502 instruction set are documented technical specifications, not proprietary
 material, and are used here descriptively.
+
+### Scope of that license
+
+This license covers the software in this repository only. It does not and
+cannot grant any right to any cartridge image, game program, or other
+copyrighted work that you may choose to analyse with it. You are responsible
+for ensuring you are entitled to use any file you pass to this tool.
+
+
+`LICENSE` is kept verbatim so that GitHub and downstream license scanners can
+detect it; that caveat therefore lives here rather than appended to the file.
