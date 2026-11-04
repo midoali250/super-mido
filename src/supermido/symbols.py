@@ -37,7 +37,7 @@ class SymbolTable:
 
     # -- construction ------------------------------------------------------
     @classmethod
-    def parse(cls, text: str, source: str | None = None) -> "SymbolTable":
+    def parse(cls, text: str, source: str | None = None) -> SymbolTable:
         table = cls(source=source)
         for lineno, raw in enumerate(text.splitlines(), start=1):
             line = raw.strip()
@@ -54,12 +54,12 @@ class SymbolTable:
         return table
 
     @classmethod
-    def load(cls, path: str | Path) -> "SymbolTable":
+    def load(cls, path: str | Path) -> SymbolTable:
         p = Path(path)
         return cls.parse(p.read_text(encoding="utf-8"), source=str(p))
 
     @classmethod
-    def merge(cls, *tables: "SymbolTable") -> "SymbolTable":
+    def merge(cls, *tables: SymbolTable) -> SymbolTable:
         """Later tables win, so a project file can override a generated one."""
         out = cls()
         for t in tables:

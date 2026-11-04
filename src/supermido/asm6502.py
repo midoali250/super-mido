@@ -112,7 +112,7 @@ class Assembler:
         for name in sorted(symbols, key=len, reverse=True):
             e = re.sub(rf"\b{re.escape(name)}\b", str(symbols[name]), e)
         e = e.replace("$", "0x").replace("%", "0b")
-        e = re.sub(rf"\b\*\b", str(pc), e)
+        e = re.sub(r"\b\*\b", str(pc), e)
         try:
             return int(eval(e, {"__builtins__": {}}, {})) & 0xFFFF  # noqa: S307
         except Exception as exc:  # pragma: no cover - surfaced with context
@@ -140,7 +140,7 @@ class Assembler:
 
         # Tokenise into (kind, head, rest, lineno) once.
         items: list[tuple[str, str, str, int]] = []
-        for label, body, lineno in parsed:
+        for _label, body, lineno in parsed:
             if not body:
                 continue
             head, _, rest = body.partition(" ")
@@ -196,7 +196,7 @@ class Assembler:
     def _encode(self, items, symbols: dict[str, int], sizes: list[int]) -> bytes:
         out = bytearray()
         pc = self.origin
-        for (kind, head, rest, lineno), size in zip(items, sizes):
+        for (kind, head, rest, lineno), size in zip(items, sizes, strict=True):
             if kind == "dir":
                 chunk = self._directive(head, rest, symbols, pc)
                 if len(chunk) != size:  # pragma: no cover - layout must agree

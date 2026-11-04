@@ -4,8 +4,7 @@ import pytest
 from fixtures import build_rom
 
 from supermido.asm6502 import AssembleError, assemble_program
-from supermido.cpu6502 import (ADDRESSING_MODES, OPCODES, official_count,
-                              undocumented_count)
+from supermido.cpu6502 import ADDRESSING_MODES, OPCODES, official_count, undocumented_count
 
 
 def test_opcode_table_covers_every_byte():

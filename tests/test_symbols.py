@@ -1,7 +1,7 @@
 """Symbol files and pointer-table detection."""
 
 import pytest
-from fixtures import RomSpec, build_rom
+from fixtures import build_rom
 
 from supermido.disasm import Kind, Mode, disassemble
 from supermido.ines import RomImage

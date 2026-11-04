@@ -96,13 +96,13 @@ class RomImage:
 
     # -- construction ------------------------------------------------------
     @classmethod
-    def from_bytes(cls, data: bytes, source_name: str = "<memory>") -> "RomImage":
+    def from_bytes(cls, data: bytes, source_name: str = "<memory>") -> RomImage:
         img = cls(data=data, source_name=source_name)
         img._parse()
         return img
 
     @classmethod
-    def load(cls, path: str | Path) -> "RomImage":
+    def load(cls, path: str | Path) -> RomImage:
         p = Path(path)
         return cls.from_bytes(p.read_bytes(), source_name=p.name)
 

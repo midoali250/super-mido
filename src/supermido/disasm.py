@@ -217,7 +217,7 @@ def disassemble(
     if hi <= lo:
         raise ValueError(f"empty range ${base + lo:04X}..${base + hi:04X}")
 
-    entries = entry_points or [v for v in rom.entry_points.values()]
+    entries = entry_points or list(rom.entry_points.values())
 
     # Indirect dispatch is invisible to a vector-driven walk, so find the
     # tables first and treat every pointer in them as an entry point too.
@@ -354,7 +354,6 @@ def round_trip(dis: Disassembly) -> dict[str, object]:
     Only code lines are checked: data is emitted verbatim, so including it
     would make the test vacuous. Returns a report with a boolean verdict.
     """
-    from supermido.asm6502 import Assembler
 
     prg = dis.rom.prg_rom
     mismatches: list[dict[str, object]] = []

@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from supermido.asm6502 import Assembler, assemble_program
+from supermido.asm6502 import Assembler
 
 
 @dataclass

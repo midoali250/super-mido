@@ -200,5 +200,5 @@ def format_operand(mode: str, value: int, pc: int) -> str:
     """Render an operand. ``pc`` is the address of the opcode (for REL)."""
     if mode == "REL":
         disp = value - 256 if value >= 128 else value
-        return "${0:04X}".format((pc + 2 + disp) & 0xFFFF)
+        return f"${(pc + 2 + disp) & 0xFFFF:04X}"
     return ADDRESSING_MODES[mode][1].format(o=value)

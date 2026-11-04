@@ -12,7 +12,8 @@ import sys
 from pathlib import Path
 
 from supermido import __version__
-from supermido.chrrom import stats as chr_stats, to_pgm, to_text
+from supermido.chrrom import stats as chr_stats
+from supermido.chrrom import to_pgm, to_text
 from supermido.disasm import Mode, disassemble, round_trip
 from supermido.ines import RomImage
 from supermido.symbols import SymbolTable
