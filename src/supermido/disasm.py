@@ -17,7 +17,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 
-from romforge.cpu6502 import (
+from supermido.cpu6502 import (
     ADDRESSING_MODES,
     BRANCHES,
     JAM_OPCODES,
@@ -28,7 +28,9 @@ from romforge.cpu6502 import (
     format_operand,
     operand_bytes,
 )
-from romforge.ines import RomImage
+from supermido.ines import RomImage
+from supermido.symbols import SymbolTable, auto_name
+from supermido.tables import extra_entry_points, find_pointer_tables, table_spans
 
 
 class Mode(str, Enum):
@@ -40,6 +42,7 @@ class Kind(str, Enum):
     CODE = "code"
     DATA = "data"
     VECTOR = "vector"
+    WORD = "word"   # a decoded pointer-table entry
 
 
 @dataclass
@@ -65,6 +68,11 @@ class Line:
         head = f"{self.label}:" if self.label else ""
         if self.kind is Kind.DATA:
             body = f".byte {' ,'.join(f'${b:02X}' for b in self.raw)}".replace(" ,", ", ")
+        elif self.kind is Kind.WORD:
+            val = self.operand or 0
+            body = f".word ${val:04X}"
+            if self.comment:
+                body += f"   ; {self.comment}"
         elif self.kind is Kind.VECTOR:
             val = self.operand or 0
             body = f".word ${val:04X}   ; {self.comment}"
@@ -92,6 +100,7 @@ class Disassembly:
     lines: list[Line] = field(default_factory=list)
     xrefs: dict[int, list[int]] = field(default_factory=dict)
     stats: dict[str, int] = field(default_factory=dict)
+    tables: list = field(default_factory=list)
 
     def text(self) -> str:
         out = [
@@ -186,6 +195,9 @@ def disassemble(
     start: int | None = None,
     end: int | None = None,
     entry_points: list[int] | None = None,
+    symbols: SymbolTable | None = None,
+    detect_tables: bool = False,
+    min_table_length: int = 4,
 ) -> Disassembly:
     """Disassemble ``rom.prg_rom``.
 
@@ -206,6 +218,14 @@ def disassemble(
         raise ValueError(f"empty range ${base + lo:04X}..${base + hi:04X}")
 
     entries = entry_points or [v for v in rom.entry_points.values()]
+
+    # Indirect dispatch is invisible to a vector-driven walk, so find the
+    # tables first and treat every pointer in them as an entry point too.
+    tables = find_pointer_tables(prg, base, min_length=min_table_length) if detect_tables else []
+    spans = table_spans(tables)
+    if tables:
+        entries = sorted(set(entries) | set(extra_entry_points(tables)))
+
     code_offsets: set[int] | None = None
     if mode is Mode.RECURSIVE:
         code_offsets = _reachable(prg, base, entries or [base + hi - 1])
@@ -240,6 +260,18 @@ def disassemble(
                 address=addr, kind=Kind.VECTOR, raw=bytes(prg[o:o + 2]),
                 operand=value, label=VECTOR_LABELS[addr],
                 comment=f"-> ${value:04X}",
+            ))
+            data_bytes += 2
+            off += 2
+            continue
+
+        if off in spans and off + 1 < hi:
+            flush_data(off)
+            value = prg[off] | (prg[off + 1] << 8)
+            lines.append(Line(
+                address=addr, kind=Kind.WORD, raw=bytes(prg[off:off + 2]),
+                operand=value, target=value,
+                comment=f"table ${spans[off]:04X}",
             ))
             data_bytes += 2
             off += 2
@@ -290,15 +322,16 @@ def disassemble(
 
     flush_data(hi)
 
-    # Labels for anything that is a branch/jump target or has an xref.
+    # Labels: a user symbol file wins, otherwise auto-name branch targets.
     taken = set(xrefs)
     for ln in lines:
-        if ln.kind is not Kind.CODE:
+        if ln.kind is Kind.VECTOR:
             continue
-        if ln.address in VECTOR_LABELS:
-            continue
-        if ln.address in taken:
-            ln.label = f"L{ln.address:04X}"
+        named = symbols.get(ln.address) if symbols else None
+        if named:
+            ln.label = named
+        elif ln.kind is Kind.CODE and ln.address in taken:
+            ln.label = auto_name(ln.address)
 
     stats = {
         "code": code_bytes,
@@ -307,8 +340,12 @@ def disassemble(
         "lines": len(lines),
         "entry_points": len(entries),
         "xref_targets": len(xrefs),
+        "pointer_tables": len(tables),
+        "pointer_table_entries": sum(t.count for t in tables),
     }
-    return Disassembly(rom=rom, mode=mode, base=base, lines=lines, xrefs=xrefs, stats=stats)
+    dis = Disassembly(rom=rom, mode=mode, base=base, lines=lines, xrefs=xrefs, stats=stats)
+    dis.tables = tables
+    return dis
 
 
 def round_trip(dis: Disassembly) -> dict[str, object]:
@@ -317,7 +354,7 @@ def round_trip(dis: Disassembly) -> dict[str, object]:
     Only code lines are checked: data is emitted verbatim, so including it
     would make the test vacuous. Returns a report with a boolean verdict.
     """
-    from romforge.asm6502 import Assembler
+    from supermido.asm6502 import Assembler
 
     prg = dis.rom.prg_rom
     mismatches: list[dict[str, object]] = []

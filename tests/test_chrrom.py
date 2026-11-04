@@ -3,8 +3,8 @@
 import pytest
 from fixtures import RomSpec, build_rom
 
-from romforge.chrrom import decode_chr, decode_tile, stats, to_pgm, to_text
-from romforge.ines import RomImage
+from supermido.chrrom import decode_chr, decode_tile, stats, to_pgm, to_text
+from supermido.ines import RomImage
 
 
 def test_tile_decodes_two_bitplanes():

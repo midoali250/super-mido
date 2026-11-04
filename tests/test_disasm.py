@@ -3,8 +3,8 @@
 import pytest
 from fixtures import RomSpec, build_rom
 
-from romforge.disasm import Kind, Mode, disassemble, round_trip
-from romforge.ines import RomImage
+from supermido.disasm import Kind, Mode, disassemble, round_trip
+from supermido.ines import RomImage
 
 BOOT = """
     reset: sei

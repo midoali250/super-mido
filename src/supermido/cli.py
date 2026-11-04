@@ -11,10 +11,11 @@ import json
 import sys
 from pathlib import Path
 
-from romforge import __version__
-from romforge.chrrom import stats as chr_stats, to_pgm, to_text
-from romforge.disasm import Mode, disassemble, round_trip
-from romforge.ines import RomImage
+from supermido import __version__
+from supermido.chrrom import stats as chr_stats, to_pgm, to_text
+from supermido.disasm import Mode, disassemble, round_trip
+from supermido.ines import RomImage
+from supermido.symbols import SymbolTable
 
 
 def _load(path: str) -> RomImage:
@@ -47,13 +48,24 @@ def cmd_inspect(args: argparse.Namespace) -> int:
 
 def cmd_disasm(args: argparse.Namespace) -> int:
     img = _load(args.rom)
+    symbols = SymbolTable.load(args.symbols) if args.symbols else None
     dis = disassemble(
         img,
         mode=Mode(args.mode),
         base=args.base,
         start=args.start,
         end=args.end,
+        symbols=symbols,
+        detect_tables=args.detect_tables,
+        min_table_length=args.min_table,
     )
+    if args.symbols_out:
+        out = SymbolTable(source=args.rom)
+        for ln in dis.lines:
+            if ln.label and ln.kind.value in ("code", "word"):
+                out.add(ln.address, ln.label)
+        out.save(args.symbols_out)
+        print(f"wrote {args.symbols_out} ({len(out)} symbols)", file=sys.stderr)
     if args.json:
         payload = dis.as_dict()
         payload["round_trip"] = round_trip(dis)
@@ -105,11 +117,11 @@ def cmd_verify(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        prog="romforge",
+        prog="supermido",
         description="Inspect and disassemble cartridge images you supply yourself.",
         epilog="This tool ships no game data. See docs/LEGAL.md.",
     )
-    p.add_argument("--version", action="version", version=f"romforge {__version__}")
+    p.add_argument("--version", action="version", version=f"supermido {__version__}")
     sub = p.add_subparsers(dest="command", required=True)
 
     def hexint(v: str) -> int:
@@ -130,6 +142,14 @@ def build_parser() -> argparse.ArgumentParser:
                    help="override the PRG base address (for banked images)")
     d.add_argument("-s", "--start", type=hexint, default=None, help="first address to decode")
     d.add_argument("-e", "--end", type=hexint, default=None, help="last address to decode")
+    d.add_argument("--symbols", metavar="FILE",
+                   help="load a .sym/.mlb symbol file and use its labels")
+    d.add_argument("--symbols-out", metavar="FILE",
+                   help="write every label found back out as a .sym file")
+    d.add_argument("--detect-tables", action="store_true",
+                   help="find pointer/jump tables, emit them as .word, and follow them")
+    d.add_argument("--min-table", type=int, default=4,
+                   help="minimum consecutive pointers to treat as a table (default 4)")
     d.set_defaults(func=cmd_disasm)
 
     c = sub.add_parser("chr", help="decode CHR ROM tiles")

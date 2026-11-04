@@ -19,11 +19,15 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-OLD_NAME = "RomForge"
-OLD_PKG = "romforge"
+OLD_NAME = "SuperMido"
+OLD_PKG = "supermido"
 
 IDENT_RE = re.compile(r"^[A-Za-z][A-Za-z0-9]*(?:[A-Za-z0-9._-]*[A-Za-z0-9])?$")
-TEXT_SUFFIXES = {".py", ".md", ".toml", ".yml", ".yaml", ".txt", ".cfg", ".ini", ".gitignore"}
+TEXT_SUFFIXES = {".py", ".md", ".toml", ".yml", ".yaml", ".txt", ".cfg",
+                 ".ini", ".rst", ".json", ".asm"}
+# Extensionless files that still carry the project name.
+NAMELESS_TEXT = {"LICENSE", "LICENCE", "COPYING", "Makefile", "README",
+                 "CONTRIBUTING", "CHANGELOG", ".gitignore", ".editorconfig"}
 
 
 def check_name(name: str) -> tuple[str, str]:
@@ -47,7 +51,7 @@ def files_to_edit(slug: str) -> list[Path]:
     for p in sorted(ROOT.rglob("*")):
         if any(part in skip for part in p.relative_to(ROOT).parts):
             continue
-        if p.is_file() and (p.suffix in TEXT_SUFFIXES or p.name == ".gitignore"):
+        if p.is_file() and (p.suffix in TEXT_SUFFIXES or p.name in NAMELESS_TEXT):
             out.append(p)
     return out
 

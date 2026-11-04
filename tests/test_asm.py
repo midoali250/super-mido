@@ -3,8 +3,8 @@
 import pytest
 from fixtures import build_rom
 
-from romforge.asm6502 import AssembleError, assemble_program
-from romforge.cpu6502 import (ADDRESSING_MODES, OPCODES, official_count,
+from supermido.asm6502 import AssembleError, assemble_program
+from supermido.cpu6502 import (ADDRESSING_MODES, OPCODES, official_count,
                               undocumented_count)
 
 

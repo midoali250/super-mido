@@ -2,7 +2,7 @@
 
 from fixtures import RomSpec, build_header, build_rom, rom_from_bytes
 
-from romforge.ines import HeaderFormat, HeaderWarning, RomImage
+from supermido.ines import HeaderFormat, HeaderWarning, RomImage
 
 
 def test_magic_and_nrom_defaults():

@@ -43,7 +43,7 @@ jobs:
         run: |
           set -euo pipefail
           python tools/make_sample.py --out /tmp/sample.nes
-          romforge inspect /tmp/sample.nes
-          romforge disasm /tmp/sample.nes --mode recursive | head -30
-          romforge verify /tmp/sample.nes
-          romforge chr /tmp/sample.nes --tiles 4
+          supermido inspect /tmp/sample.nes
+          supermido disasm /tmp/sample.nes --mode recursive | head -30
+          supermido verify /tmp/sample.nes
+          supermido chr /tmp/sample.nes --tiles 4

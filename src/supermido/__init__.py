@@ -9,10 +9,10 @@ See ``docs/LEGAL.md`` for the policy this repository operates under.
 
 from __future__ import annotations
 
-from romforge.disasm import Disassembly, Kind, Line, Mode, disassemble, round_trip
-from romforge.ines import HeaderFormat, HeaderWarning, RomImage
+from supermido.disasm import Disassembly, Kind, Line, Mode, disassemble, round_trip
+from supermido.ines import HeaderFormat, HeaderWarning, RomImage
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "Disassembly",

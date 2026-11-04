@@ -14,7 +14,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from romforge.cpu6502 import ADDRESSING_MODES, OPCODES
+from supermido.cpu6502 import ADDRESSING_MODES, OPCODES
 
 _LINE_RE = re.compile(r"^\s*(?:(?P<label>[A-Za-z_.][A-Za-z0-9_.]*)\s*:\s*)?(?P<body>.*?)\s*$")
 _COMMENT_RE = re.compile(r"(?<!\\);.*$")
